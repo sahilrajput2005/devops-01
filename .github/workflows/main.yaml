@@ -51,6 +51,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
           script: |
+            sudo su
+            apt update && apt upgrade -y
             cd /home/${{ secrets.EC2_USER }}/backend
 
             # Update packages and install venv (Python 3.12 fix)
