@@ -29,9 +29,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p /home/${{ secrets.EC2_USER }}/backend
-            sudo chown -R $USER:$USER /home/${{ secrets.EC2_USER }}/backend
-            sudo chmod -R u+rwX /home/${{ secrets.EC2_USER }}/backend
+            sudo mkdir -p /home/${{ secrets.EC2_USER }}/backend
+            sudo chown -R ubuntu:ubuntu /home/${{ secrets.EC2_USER }}/backend
+            sudo chmod -R 755 /home/${{ secrets.EC2_USER }}/backend
 
       - name: Upload project to EC2 (SCP)
         uses: appleboy/scp-action@v0.1.7
@@ -53,15 +53,19 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }}/backend
 
+            # Update packages and install venv (Python 3.12 fix)
             sudo apt update -y
             sudo apt install -y python3.12-venv
 
+            # Create or activate virtual environment
             python3 -m venv .venv || true
             source .venv/bin/activate
 
+            # Install dependencies
             python -m pip install --upgrade pip
             pip install -r requirements.txt
 
+            # Restart server on port 8000
             fuser -k 8000/tcp || true
             nohup python manage.py runserver 0.0.0.0:8000 > logs.out 2>&1 &
-            echo "Deployment complete and server restarted!"
+            echo "✅ Deployment complete and server restarted!"
