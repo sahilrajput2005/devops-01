@@ -39,8 +39,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "."
-          target: "/home/${{ secrets.EC2_USER }}/backend"
+          source: .
+          target: /home/${{ secrets.EC2_USER }}/backend
           overwrite: true
 
       - name: Deploy on EC2
@@ -53,15 +53,15 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }}/backend
 
-            # Set up virtual environment
+            sudo apt update -y
+            sudo apt install -y python3.12-venv
+
             python3 -m venv .venv || true
             source .venv/bin/activate
 
-            # Install dependencies
             python -m pip install --upgrade pip
             pip install -r requirements.txt
 
-            # Restart Django server
             fuser -k 8000/tcp || true
             nohup python manage.py runserver 0.0.0.0:8000 > logs.out 2>&1 &
-            echo "✅ Deployment complete and server restarted!"
+            echo "Deployment complete and server restarted!"
