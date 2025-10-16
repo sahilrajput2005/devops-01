@@ -3,9 +3,8 @@ name: Deploy Full Application (Backend + Frontend)
 on:
   push:
     branches:
-      - main
-
-  workflow_dispatch:
+        - main
+  workflow_dispatch:  {}
 
 concurrency:
   group: full-deploy
